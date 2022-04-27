@@ -1,0 +1,4 @@
+
+Таблиця products - product_id - partition key, star_rating - clustering key, бо в перших двох запитах необхідно знаходити дані за product_id  
+
+Таблиця	customers - customer_id - partition key, star_rating - clustering, бо в 3 та 5 запитах необхідно знаходити дані за customer_id і використовувати операцію порівняння на star_rating
