@@ -8,4 +8,4 @@ SELECT review FROM products WHERE product_id = 1 AND star_rating = 4;
 SELECT review FROM customers WHERE customer_id = 2;
 
 // Дізнатися скільки позитивних відгуків (4 або 5 зірок) залишив вказаний користувач customer_id
-SELECT COUNT(*) FROM customers WHERE customer_id = 1 AND star_rating > 3);
+SELECT COUNT(*) FROM customers WHERE customer_id = 1 AND star_rating > 3;
