@@ -2,7 +2,8 @@ import pandas as pd
 
 
 def form_table():
-    df1 = pd.read_csv('amazon_reviews.tsv', sep='\t', nrows=1000)
+    df1 = pd.read_csv('amazon_reviews.tsv', sep='\t', nrows=10000)
+    df1.dropna(inplace=True)
     df1['review_headline'] = df1['review_headline'].str.replace("'", '"')
     df1['review_body'] = df1['review_body'].str.replace("'", '"')
     prods = df1[['product_id', 'star_rating', 'review_id', 'review_headline', 'review_body', 'review_date']]

@@ -12,7 +12,7 @@ class CassandraClient:
         from cassandra.cluster import Cluster
         cluster = Cluster([self.host], port=self.port)
         self.session = cluster.connect(self.keyspace)
-        # self.session.row_factory = dict_factory
+        self.session.row_factory = dict_factory
         # print(hi)
 
     def execute(self, query):
@@ -27,8 +27,8 @@ class CassandraClient:
         :param product_id: str
         :return: dict
         """
-        query = f"SELECT review_id FROM products WHERE product_id = '{product_id}';"
-        return self.session.execute(query)
+        query = f"SELECT review_id, review_headline,review_body,star_rating FROM products WHERE product_id = '{product_id}';"
+        return list(self.session.execute(query))
 
     def select2(self, product_id, star_rating):
         """
@@ -37,8 +37,9 @@ class CassandraClient:
         :param star_rating: int
         :return: dict
         """
-        query = f"SELECT review_id FROM products WHERE product_id = '{product_id}' AND star_rating = {star_rating};"
-        return self.session.execute(query)
+        query = f"SELECT review_id, review_headline,review_body, star_rating FROM products WHERE product_id = '{product_id}' AND " \
+                f"star_rating = {star_rating};"
+        return list(self.session.execute(query))
 
     def select3(self, customer_id):
         """
@@ -46,8 +47,8 @@ class CassandraClient:
         :param customer_id: int
         :return: dict
         """
-        query = f"SELECT review_id FROM reviews WHERE customer_id = '{customer_id}';"
-        return self.session.execute(query)
+        query = f"SELECT review_id, review_headline,review_body FROM reviews WHERE customer_id = '{customer_id}';"
+        return list(self.session.execute(query))
 
     def select4(self, N, date1, date2):
         """
@@ -58,8 +59,8 @@ class CassandraClient:
         :return: dict
         """
         query = f"SELECT product_id, COUNT(*) from products WHERE (review_date >= '{date1}') AND " \
-                f"(review_date < '{date2}') GROUP BY product_id LIMIT {N} ALLOW FILTERING; "
-        return self.session.execute(query)
+                f"(review_date < '{date2}') GROUP BY product_id ALLOW FILTERING; "
+        return list(sorted(self.session.execute(query), key=lambda d: d['count'], reverse=True))[:N]
 
     def select5(self, N, date1, date2):
         """
@@ -69,9 +70,9 @@ class CassandraClient:
         :param date2: str
         :return: dict
         """
-        query = f"SELECT customer_id, COUNT(*) from reviews WHERE verified_purchase = 'Y' AND (review_date < '{date1}') AND (" \
-                f"review_date >= '{date2}') GROUP BY customer_id LIMIT {N} ALLOW FILTERING; "
-        return self.session.execute(query)
+        query = f"SELECT customer_id, COUNT(*) from reviews WHERE verified_purchase = 'Y' AND (review_date >= '{date1}') AND (" \
+                f"review_date < '{date2}') GROUP BY customer_id ALLOW FILTERING; "
+        return list(sorted(self.session.execute(query), key=lambda d: d['count'], reverse=True))[:N]
 
     def select6(self, N, date1, date2):
         """
@@ -81,9 +82,9 @@ class CassandraClient:
         :param date2: str
         :return: dict
         """
-        query = f"SELECT customer_id, COUNT(*) from reviews WHERE (star_rating < 3) AND (review_date < '{date1}') AND (" \
-                f"review_date >= '{date2}') GROUP BY customer_id LIMIT {N} ALLOW FILTERING; "
-        return self.session.execute(query)
+        query = f"SELECT customer_id, COUNT(*) from reviews WHERE (star_rating < 3) AND (review_date >= '{date1}') AND (" \
+                f"review_date < '{date2}') GROUP BY customer_id ALLOW FILTERING; "
+        return list(sorted(self.session.execute(query), key=lambda d: d['count'], reverse=True))[:N]
 
     def select7(self, N, date1, date2):
         """
@@ -93,22 +94,22 @@ class CassandraClient:
         :param date2: str
         :return: dict
         """
-        query = f"SELECT customer_id, COUNT(*) from reviews WHERE (star_rating >= 3) AND (review_date < '{date1}') " \
-                f"AND (review_date >= '{date2}') GROUP BY customer_id LIMIT {N} ALLOW FILTERING;"
-        return self.session.execute(query)
+        query = f"SELECT customer_id, COUNT(*) from reviews WHERE (star_rating >= 3) AND (review_date >= '{date1}') " \
+                f"AND (review_date < '{date2}') GROUP BY customer_id ALLOW FILTERING;"
+        return list(sorted(self.session.execute(query), key=lambda d: d['count'], reverse=True))[:N]
 
 
 def cassandra_connect(host='localhost', port=9042, keyspace='hw4_hnatenko'):
     client = CassandraClient(host, port, keyspace)
     client.connect()
     d1 = client.select1('0385730586')
-    d2 = client.select2('0811828964', 5)
+    d2 = client.select2('0385730586', 5)
     d3 = client.select3('12257412')
-    d4 = client.select4(2, '2005-10-14', '2005-10-14')
-    d5 = client.select5(2, '2005-10-14', '2005-10-14')
-    print(d5)
-    d6 = client.select6(2, '2015-08-31', '2015-08-31')
-    d7 = client.select7(2, '2015-08-31', '2015-08-31')
+    d4 = client.select4(10, '2005-10-14', '2016-10-14')
+    d5 = client.select5(10, '2005-10-14', '2015-10-14')
+    print(d4)
+    d6 = client.select6(10, '2005-08-31', '2015-08-31')
+    d7 = client.select7(10, '2005-08-31', '2015-08-31')
     client.close()
 
 
