@@ -1,0 +1,9 @@
+FROM python:3.9-slim
+
+RUN pip install --upgrade pip
+RUN pip install kafka-python
+
+WORKDIR /hw7
+COPY ./writing_tweets.py .
+COPY twcs.csv .
+ENTRYPOINT ["python", "writing_tweets.py"]
