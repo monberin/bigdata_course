@@ -18,7 +18,7 @@ def get_transaction_date():
 
 
 def main():
-    with open('../sample.csv', 'r') as f:
+    with open('./PS_20174392719_1491204439457_log.csv', 'r') as f:
         # print('opened file')
         reader = csv.reader(f)
         header = next(reader)
